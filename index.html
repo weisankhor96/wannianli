@@ -1,181 +1,225 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
-	<title>万年历查询</title> 
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>jQuery UI Datepicker - Default functionality</title>
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-	<link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
-	<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-	<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-	<style type="text/css">
-	input[type=button] {
-		box-shadow:inset 0px 1px 0px 0px #ffffff;
-		background:linear-gradient(to bottom, #ededed 5%, #dfdfdf 100%);
-		background-color:#ededed;
-		border-radius:6px;
-		border:3px solid #dcdcdc;
-		display:inline-block;
-		cursor:pointer;
-		color:#777777;
-		font-family:Arial;
-		font-size:15px;
-		font-weight:bold;
-		padding:6px 21px;
-		text-decoration:none;
-		text-shadow:0px 1px 0px #ffffff;
-		margin: 4px;
-	}
-	input[type=button].selected{
-		background: linear-gradient(to bottom, #ededed 5%, #ff7171 100%);
-		background-color: #912626;
-		color: #814141;
-	}
-	input[type=button]:hover {
-		background-color:#dfdfdf;
-	}
-	input[type=button]:active {
-		position:relative;
-		top:1px;
-	}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>萬年曆查詢</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://jqueryui.com/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+  <script src="https://6tail.cn/calendar/api/lunar.js"></script> <!-- 确保引入農曆API -->
 
-	</style>
-	<script>
-	$( function() {
-		var jsonElement ={'甲子':'水','乙丑':'木','丙寅':'火','丁卯':'水','戊辰':'金','己巳':'木','庚午':'木','辛未':'金','壬申':'水','癸酉':'火','甲戌':'火','乙亥':'木','丙子':'水','丁丑':'金','戊寅':'木','己卯':'火','庚辰':'水','辛巳':'木','壬午':'火','癸未':'金','甲申':'木','乙酉':'金','丙戌':'水','丁亥':'木','戊子':'火','己丑':'金','庚寅':'木','辛卯':'火','壬辰':'水','癸巳':'金','甲午':'金','乙未':'火','丙申':'木','丁酉':'金','戊戌':'水','己亥':'火','庚子':'火','辛丑':'水','壬寅':'金','癸卯':'木','甲辰':'木','乙巳':'火','丙午':'金','丁未':'水','戊申':'火','己酉':'木','庚戌':'金','辛亥':'火','壬子':'木','癸丑':'水','甲寅':'火','乙卯':'水','丙辰':'金','丁巳':'火','戊午':'木','己未':'水','庚申':'火','辛酉':'木','壬戌':'金','癸亥':'水'};
-		var jsonColor = {'金':"黑 白 乳白",'木':"紅 紫 淺藍 淺青",'水':"淺青 淺藍 黑",'火':"黃 淺黃 紅 紫"}
-		$("input[type=button]").removeClass("selected");
-		$("#today").addClass("selected");
-		$( ".datepicker" ).datepicker().datepicker('setDate', 'today');
-		//当前日期生成农历对象
-		var date = Lunar.fromDate(new Date());	
-		var color = jsonElement[date.getDayInGanZhi()];
-		var result = color + ' ' + jsonColor[color];
-		$("#result_date").html(date.getSolar().toFullString());
-		$("#result_cndate").html(date.toFullString());
-		$("#result_element").html(date.getDayInGanZhi());
-		$("#result_color").html(result);
-		
-		//提交
-		$("#submit").on("click",function(){
-			$("input[type=button]").removeClass("selected");
-			submit();	
-		});
-		
-		//今日 
-		$("#today").on("click",function(){
-			$("input[type=button]").removeClass("selected");
-			$(this).addClass("selected");
-			$( ".datepicker" ).datepicker().datepicker('setDate', 'today');			
-			submit();
-		})
-		
-		//重置
-		$("#reset").on("click",function(){
-			$( ".datepicker" ).datepicker().datepicker('setDate', 'today');
-			$("input[type=button]").removeClass("selected");
-			$("#today").addClass("selected");
-			submit();
-		})
-		
-		//明日
-		$("#tomorrow").on("click",function(){
-			$("input[type=button]").removeClass("selected");
-			$(this).addClass("selected");
-			$( ".datepicker" ).datepicker().datepicker('setDate', 'today');
-			var date = $( ".datepicker" ).datepicker('getDate');
-			var begin = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-			$('#datepicker_start').datepicker("setDate", new Date(formatDate(begin)) );
-			$('#datepicker_end').datepicker("setDate", new Date(formatDate(begin)) );	
-			submit();
-		})
-		
-		//本周
-		$("#thisweek").on("click",function(){
-			$("input[type=button]").removeClass("selected");
-			$(this).addClass("selected");
-			$( ".datepicker" ).datepicker().datepicker('setDate', 'today');	
-			var date = $( ".datepicker" ).datepicker('getDate');			
-			var begin = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + (date.getDay() ? 1 : -6 ));
-            var end = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + (date.getDay() ? 7 : 0 ));
-			$('#datepicker_start').datepicker("setDate", new Date(formatDate(begin)) );
-			$('#datepicker_end').datepicker("setDate", new Date(formatDate(end)) );	
-			submit();
-		})
-		
-		//下周
-		$("#nextweek").on("click",function(){
-			$("input[type=button]").removeClass("selected");
-			$(this).addClass("selected");
-			$( ".datepicker" ).datepicker().datepicker('setDate', 'today');	
-			var date = $( ".datepicker" ).datepicker('getDate');			
-			var begin = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + (date.getDay() ? 1 : -6 ) + 7);
-            var end = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + (date.getDay() ? 7 : 0 ) + 7);
-			$('#datepicker_start').datepicker("setDate", new Date(formatDate(begin)) );
-			$('#datepicker_end').datepicker("setDate", new Date(formatDate(end)) );			
-			submit();
-		})
-		
-		function submit(){
-			var startDate = $("#datepicker_start").datepicker("getDate");
-			var endDate = $("#datepicker_end").datepicker("getDate");
-			var difference = (endDate - startDate) / (86400000);
-			if(difference > 7){
-				alert('結束時間不能大於7天');
-				return;
-			}
-		
-			$("#content").empty();
-			for(var i=0;i<=difference;i++){
-				var startDate = $("#datepicker_start").datepicker("getDate");				
-				startDate.setDate(startDate.getDate()+i);
-				var date = Lunar.fromDate(new Date(startDate));
-				var color = jsonElement[date.getDayInGanZhi()];
-				var result = color + ' ' + jsonColor[color];	
-				var background = formatDate(new Date(startDate)) == formatDate(new Date())? "background-color: #85b580cc;" :"";
-				$("#content").append('<div style="'+background+'"><div>日期 ：<span id="result_date">'+date.getSolar().toFullString()+'</span></div> '+
-									 '<div>農曆 ：<span id="result_cndate">'+date.toFullString()+'</span></div>'+
-									 '<div>屬性 ：<span id="result_element">'+date.getDayInGanZhi()+'</span></div>'+
-									 '<div>颜色 ：<span id="result_color">'+result+'</span></div></div><BR><BR>');
-			}	
-		}
-		
-		function formatDate(date) {
-			var d = new Date(date),
-				month = '' + (d.getMonth() + 1),
-				day = '' + d.getDate(),
-				year = d.getFullYear();
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      margin: 1rem;
+      background-color: #f9f9f9;
+    }
 
-			if (month.length < 2) 
-				month = '0' + month;
-			if (day.length < 2) 
-				day = '0' + day;
+    p {
+      margin-bottom: 0.5rem;
+    }
 
-			return [year, month, day].join('-');
-		}
-	} );
-	
-	</script>
+    .datepicker {
+      width: 100%;
+      max-width: 300px;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type=button] {
+      flex: 1 1 auto;
+      padding: 8px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(to bottom, #ededed, #dfdfdf);
+      color: #444;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      min-width: 80px;
+    }
+
+    input[type=button].selected {
+      background: linear-gradient(to bottom, #ff9999, #ff7171);
+      color: white;
+    }
+
+    input[type=button]:hover {
+      background-color: #ddd;
+    }
+
+    #content > div {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    @media (max-width: 480px) {
+      input[type=button] {
+        font-size: 14px;
+      }
+    }
+  </style>
 </head>
-<body> 
-	<p>開始時間: <input type="text" id="datepicker_start" class="datepicker"></p>
-    <p>結束時間: <input type="text" id="datepicker_end" class="datepicker"></p>
-	<p><input type="button" id="today" value="今日">&nbsp;
-	   <input type="button" id="tomorrow" value="明日">&nbsp;
-	   <input type="button" id="thisweek" value="本周">&nbsp;
-	   <input type="button" id="nextweek" value="下周">&nbsp;
-	   <input type="button" id="submit" value="提交">&nbsp;
-	   <input type="button" id="reset" value="重置">&nbsp;
-    </p>
-	<div id="content">
-		<div style="background-color: #85b580cc;">
-			<div>日期 ：<span id="result_date"></span></div>
-			<div>農曆 ：<span id="result_cndate"></span></div>
-			<div>屬性 ：<span id="result_element"></span></div>
-			<div>颜色 ：<span id="result_color"></span></div>
-		</div>
-	</div>
+<body>
+
+  <p>開始時間: <input type="text" id="datepicker_start" class="datepicker"></p>
+  <p>結束時間: <input type="text" id="datepicker_end" class="datepicker"></p>
+
+  <div class="button-group">
+    <input type="button" id="today" value="今日">
+    <input type="button" id="tomorrow" value="明日">
+    <input type="button" id="thisweek" value="本周">
+    <input type="button" id="nextweek" value="下周">
+    <input type="button" id="submit" value="提交">
+    <input type="button" id="reset" value="重置">
+  </div>
+
+  <div id="content">
+    <div style="background-color: #85b580cc;">
+      <div>日期 ：<span id="result_date"></span></div>
+      <div>農曆 ：<span id="result_cndate"></span></div>
+      <div>屬性 ：<span id="result_element"></span></div>
+      <div>颜色 ：<span id="result_color"></span></div>
+    </div>
+  </div>
+
+  <script>
+    $(function () {
+      const jsonElement = {
+        '甲子': '水', '乙丑': '木', '丙寅': '火', '丁卯': '水', '戊辰': '金', '己巳': '木', '庚午': '木',
+        '辛未': '金', '壬申': '水', '癸酉': '火', '甲戌': '火', '乙亥': '木', '丙子': '水', '丁丑': '金',
+        '戊寅': '木', '己卯': '火', '庚辰': '水', '辛巳': '木', '壬午': '火', '癸未': '金', '甲申': '木',
+        '乙酉': '金', '丙戌': '水', '丁亥': '木', '戊子': '火', '己丑': '金', '庚寅': '木', '辛卯': '火',
+        '壬辰': '水', '癸巳': '金', '甲午': '金', '乙未': '火', '丙申': '木', '丁酉': '金', '戊戌': '水',
+        '己亥': '火', '庚子': '火', '辛丑': '水', '壬寅': '金', '癸卯': '木', '甲辰': '木', '乙巳': '火',
+        '丙午': '金', '丁未': '水', '戊申': '火', '己酉': '木', '庚戌': '金', '辛亥': '火', '壬子': '木',
+        '癸丑': '水', '甲寅': '火', '乙卯': '水', '丙辰': '金', '丁巳': '火', '戊午': '木', '己未': '水',
+        '庚申': '火', '辛酉': '木', '壬戌': '金', '癸亥': '水'
+      };
+      const jsonColor = {
+        '金': "黑 白 乳白",
+        '木': "紅 紫 淺藍 淺青",
+        '水': "淺青 淺藍 黑",
+        '火': "黃 淺黃 紅 紫"
+      };
+
+      $(".datepicker").datepicker();
+      $("#today").addClass("selected").click();
+
+      function formatDate(date) {
+        let d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
+      }
+
+      function submit() {
+        let startDate = $("#datepicker_start").datepicker("getDate");
+        let endDate = $("#datepicker_end").datepicker("getDate");
+        let diff = (endDate - startDate) / (86400000);
+
+        if (diff > 7) {
+          alert('結束時間不能大於7天');
+          return;
+        }
+
+        $("#content").empty();
+        for (let i = 0; i <= diff; i++) {
+          let d = new Date(startDate);
+          d.setDate(d.getDate() + i);
+          let lunar = Lunar.fromDate(d);
+          let element = lunar.getDayInGanZhi();
+          let type = jsonElement[element];
+          let color = type + " " + jsonColor[type];
+
+          let highlight = (formatDate(d) === formatDate(new Date())) ? "background-color:#85b580cc;" : "";
+          $("#content").append(`
+            <div style="${highlight}">
+              <div>日期 ：<span>${lunar.getSolar().toFullString()}</span></div>
+              <div>農曆 ：<span>${lunar.toFullString()}</span></div>
+              <div>屬性 ：<span>${element}</span></div>
+              <div>颜色 ：<span>${color}</span></div>
+            </div>
+          `);
+        }
+      }
+
+      function setRange(startOffset, endOffset) {
+        let today = new Date();
+        let start = new Date(today);
+        let end = new Date(today);
+        start.setDate(today.getDate() + startOffset);
+        end.setDate(today.getDate() + endOffset);
+        $("#datepicker_start").datepicker("setDate", start);
+        $("#datepicker_end").datepicker("setDate", end);
+      }
+
+      $("#submit").on("click", function () {
+        $("input[type=button]").removeClass("selected");
+        submit();
+      });
+
+      $("#today").on("click", function () {
+        $("input[type=button]").removeClass("selected");
+        $(this).addClass("selected");
+        setRange(0, 0);
+        submit();
+      });
+
+      $("#tomorrow").on("click", function () {
+        $("input[type=button]").removeClass("selected");
+        $(this).addClass("selected");
+        setRange(1, 1);
+        submit();
+      });
+
+      $("#thisweek").on("click", function () {
+        $("input[type=button]").removeClass("selected");
+        $(this).addClass("selected");
+        let today = new Date();
+        let start = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+        let end = new Date(today.setDate(start.getDate() + 6));
+        $("#datepicker_start").datepicker("setDate", start);
+        $("#datepicker_end").datepicker("setDate", end);
+        submit();
+      });
+
+      $("#nextweek").on("click", function () {
+        $("input[type=button]").removeClass("selected");
+        $(this).addClass("selected");
+        let today = new Date();
+        let start = new Date(today.setDate(today.getDate() - today.getDay() + 8));
+        let end = new Date(today.setDate(start.getDate() + 6));
+        $("#datepicker_start").datepicker("setDate", start);
+        $("#datepicker_end").datepicker("setDate", end);
+        submit();
+      });
+
+      $("#reset").on("click", function () {
+        $("input[type=button]").removeClass("selected");
+        $("#today").click();
+      });
+
+      // 預設顯示今日
+      $("#today").click();
+    });
+  </script>
 </body>
 </html>
 <script>
